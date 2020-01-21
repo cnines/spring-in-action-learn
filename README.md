@@ -15,6 +15,7 @@
 9. 此时，bean 已经准备就绪了，可以被应用程序使用了，它们将一直驻留在应用的上下文中，直到该应用上下文被销毁
 10. 如果 bean 实现了 DisposableBean 接口，Spring 将调用它的 destroy() 接口方法。同样，如果 bean 使用 destroy-method 声明了销毁方法，该方法也会被调用
 
+
 # 装配 Bean
 
 ## Spring 配置的可选方案
@@ -873,8 +874,9 @@ Spring 3.1 开始，推荐 PropertySourcePlaceholderConfigurer，它能够基于
 Java 配置方法：
 
 ```java
+// 注意，这里必须使用 static
 @Bean
-public PropertySourcePlaceholderConfigurer propertySourcePlaceholderConfigurer(){
+public static PropertySourcePlaceholderConfigurer propertySourcePlaceholderConfigurer(){
     return new PropertySourcePlaceholderConfigurer();
 }
 ```
@@ -928,7 +930,7 @@ SpEL 可以通过 ID 引用其他的bean，如 `#{sgtPeppers}`来引用 ID 为 s
 ```
 可以使用 #{T(java.lang.Math).PI} 来访问 Math 类的静态常量 PI 的值
 可以使用 #{T(java.lang.Math).random()} 来调用 Math 类的静态方法 random() 生成一个 0~1 之间的随机数
-可以使用 #{T(java.lang.System).currentTimeMillis} 来得到当前时间的毫秒数
+可以使用 #{T(java.lang.System).currentTimeMillis()} 来得到当前时间的毫秒数
 ```
 
 #### SpEL 运算符
@@ -937,16 +939,17 @@ SpEL 可以通过 ID 引用其他的bean，如 `#{sgtPeppers}`来引用 ID 为 s
 | ---------- | -------------------------------------------------------- |
 | 算术运算   | `+`  `-`  `*`  `/`  `%`  `^`                             |
 | 比较运算   | `<`  `>`  `==`  `<=`  `>=`  `lt`  `gt`  `eq`  `le`  `ge` |
-| 逻辑运算   | `and`  `or`  `not`                                |
+| 逻辑运算   | `and`  `or`  `not`  `|`                                  |
 | 条件运算   | `?:(ternary)`  `?:(Elvis)`                               |
 | 正则表达式 | `matches`                                                |
 
 ```java
+// 在 SpEL 中不能使用双引号，因为 SpEL 表达式是放在双引号里面的
 #{2 * T(java.lang.Math).PI * circle.radius}
 #{T(java.lang.Math).PI * circle.radius ^ 2}
 #{disc.title + ' by ' + disc.artist}
 #{counter.total == 200}     #{counter.total eq 200}
-#{scoreboard.score > 100 ? "Winner!" : "Loser"}   三元运算符ternary
+#{scoreboard.score > 100 ? 'Winner!' : 'Loser'}   三元运算符ternary
 #{disc.title ?: 'Rattle and Hum'}     如果 disc.title 是 null,该 Elvis 表达式的计算结果就是 "Rattle and Hum"
 ```
 
@@ -979,7 +982,6 @@ SpEL 还提供了***投影运算符***（`.![]`），将集合的每个成员中
 投影操作可以与其他任意的 SpEL 运算符一起使用。
 
 **我们应该尽可能让表达式保持简洁，降低测试难度。**
-
 
 
 
